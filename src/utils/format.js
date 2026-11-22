@@ -1,0 +1,10 @@
+export const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+export const dt=s=>new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+export const tm=s=>new Date(s).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+export const mask=n=>'XXXX XXXX '+String(n).slice(-4);
+export const download=(name,text,type='text/csv')=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()};
+export const emailOk=v=>/^\S+@\S+\.\S+$/.test(v);
+export const strength=p=>[/.{8,}/,/[A-Z]/,/[a-z]/,/\d/,/[^A-Za-z0-9]/].filter(r=>r.test(p)).length;
+export const range=p=>{const n=new Date(),iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);let a=new Date(n),b=new Date(n);
+ if(p==='week')a.setDate(n.getDate()-((n.getDay()+6)%7));if(p==='month')a=new Date(n.getFullYear(),n.getMonth(),1);
+ if(p==='last'){a=new Date(n.getFullYear(),n.getMonth()-1,1);b=new Date(n.getFullYear(),n.getMonth(),0)}return{from:iso(a),to:iso(b)}};

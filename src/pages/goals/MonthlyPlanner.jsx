@@ -1,0 +1,16 @@
+import {useEffect,useState} from 'react';import {useAsync} from '../../hooks/useAsync.js';import {goalApi} from '../../services/phase3.js';import {useApp} from '../../context/AppContext.jsx';
+import {Card,PageHeader,Field,Input,Skeleton,ErrorState,Spinner,StatCard} from '../../components/common/ui.jsx';import {DevNotice,GoalTabs,ProgressBar,Tip,errMsg,rupee} from '../../components/p3/parts.jsx';
+const MONTH='2026-10',K=['estimatedIncome','estimatedExpenses','plannedSavings','savingsTarget'],L={estimatedIncome:'Estimated income (₹)',estimatedExpenses:'Estimated expenses (₹)',plannedSavings:'Planned savings (₹)',savingsTarget:'Savings target (₹)'};
+export default function MonthlyPlanner(){
+ const{toast}=useApp();const{data,loading,error,reload}=useAsync(()=>goalApi.planGet(MONTH));const[f,setF]=useState(null),[busy,setBusy]=useState(false),[err,setErr]=useState('');
+ useEffect(()=>{if(!data)return;const p=data.plan||{estimatedIncome:data.suggested.estimatedIncome,estimatedExpenses:data.suggested.estimatedExpenses,plannedSavings:0,savingsTarget:data.suggested.savingsTarget};setF(Object.fromEntries(K.map(k=>[k,String(p[k])])))},[data]);
+ if(loading&&!data)return<Skeleton className="h-72"/>;if(error)return<ErrorState message={error} onRetry={reload}/>;if(!f)return<Skeleton className="h-72"/>;
+ const n=k=>Number(f[k])||0,left=n('estimatedIncome')-n('estimatedExpenses')-n('plannedSavings'),short=n('savingsTarget')-n('plannedSavings');
+ const save=async()=>{if(busy)return;setErr('');for(const k of K)if(f[k]===''||Number(f[k])<0)return setErr('All amounts must be zero or more.');setBusy(true);try{await goalApi.planSave(MONTH,f);toast('Plan saved');reload()}catch(x){setErr(errMsg(x))}finally{setBusy(false)}};
+ return<><PageHeader title="Monthly savings planner" sub="October 2026 · planned amounts, not bank transactions."/><GoalTabs/><DevNotice what="Plan defaults and saved plans"/>
+ <div className="grid gap-4 lg:grid-cols-2"><Card><div className="space-y-3">{err&&<p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{err}</p>}
+  {K.map(k=><Field key={k} label={L[k]}><Input type="number" min="0" value={f[k]} onChange={e=>setF({...f,[k]:e.target.value})}/></Field>)}
+  <p className="muted text-xs">{data.plan?`Saved plan (last saved ${new Date(data.plan.savedAt).toLocaleString('en-IN')}).`:'Not saved yet.'} Defaults: income and expenses are estimates from {data.suggested.basis}; the savings target is the {data.suggested.targetBasis.toLowerCase()}.</p>
+  <button className="btn-p w-full" disabled={busy} onClick={save}>{busy&&<Spinner/>}Save plan</button></div></Card>
+  <div className="space-y-3"><div className="grid grid-cols-2 gap-3"><StatCard label="Remaining to allocate" value={rupee(left)} tone={left<0?'text-rose-500':'text-emerald-600'}/><StatCard label="Short of target" value={short>0?rupee(short):'Target met'}/></div>
+   <Card><p className="mb-2 text-sm font-semibold">Planned savings vs target</p><ProgressBar label="Planned savings against target" pct={n('savingsTarget')?n('plannedSavings')/n('savingsTarget')*100:0}/>{left<0&&<p role="status" className="mt-2 text-xs text-amber-700">Planned savings plus expenses exceed estimated income by {rupee(-left)}.</p>}<Tip>Remaining = income − expenses − planned savings. This plan does not transfer money.</Tip></Card></div></div></>}

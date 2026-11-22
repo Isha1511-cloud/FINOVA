@@ -1,0 +1,5 @@
+import {Check,X} from 'lucide-react';
+const R=[['8+ characters',/.{8,}/],['Uppercase letter',/[A-Z]/],['Lowercase letter',/[a-z]/],['Number',/\d/],['Special character',/[^A-Za-z0-9]/]];
+export default function PasswordStrength({value=''}){const ok=R.map(([,r])=>r.test(value)),n=ok.filter(Boolean).length,L=n<3?['Weak','bg-rose-500','text-rose-600']:n<5?['Medium','bg-amber-500','text-amber-600']:['Strong','bg-emerald-500','text-emerald-600'];
+ return<div aria-live="polite" className="space-y-2"><div className="flex items-center gap-2"><div className="flex flex-1 gap-1">{R.map((_,i)=><span key={i} className={`h-1.5 flex-1 rounded transition-colors ${i<n?L[1]:'bg-slate-200 dark:bg-slate-700'}`}/>)}</div>{value&&<span className={`text-xs font-semibold ${L[2]}`}>{L[0]}</span>}</div>
+ <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">{R.map(([t],i)=><li key={t} className={`flex items-center gap-1 ${ok[i]?'text-emerald-600':'muted'}`}>{ok[i]?<Check className="h-3 w-3"/>:<X className="h-3 w-3"/>}{t}</li>)}</ul></div>}

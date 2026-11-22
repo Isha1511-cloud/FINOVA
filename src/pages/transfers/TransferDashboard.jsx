@@ -1,0 +1,22 @@
+import {Link} from 'react-router-dom';import {Send,Repeat,Users,History,Gauge} from 'lucide-react';
+import {useAsync} from '../../hooks/useAsync.js';import {transferApi,beneficiaryApi} from '../../services/phase3.js';
+import {Card,PageHeader,Skeleton,EmptyState,ErrorState,Amt} from '../../components/common/ui.jsx';import {StatusBadge} from '../../components/transactions/TxItem.jsx';
+import {DevNotice,BenStatus,ProgressBar,rupee} from '../../components/p3/parts.jsx';import {dt} from '../../utils/format.js';
+
+export const TransferRow=({t})=><Link to={`/transfers/${t.id}`} className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-100 dark:hover:bg-slate-800"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15">{t.kind==='own'?<Repeat className="h-5 w-5"/>:<Send className="h-5 w-5"/>}</span><div className="min-w-0 flex-1"><p className="truncate font-semibold">{t.desc}</p><p className="muted truncate text-xs">{dt(t.date)} · {t.id}</p></div><div className="text-right"><p className="font-bold"><Amt v={t.amount}/></p><StatusBadge s={t.status}/></div></Link>;
+
+export default function TransferDashboard(){
+ const recent=useAsync(()=>transferApi.list({pageSize:5})),ben=useAsync(beneficiaryApi.list),lim=useAsync(transferApi.limits);
+ const active=(ben.data||[]).filter(b=>b.status==='active').slice(0,6);
+ return<><PageHeader title="Money Transfers" sub="Send money to beneficiaries or move it between your own accounts."><Link to="/transfers/new" className="btn-p"><Send className="h-4 w-4"/>Transfer money</Link></PageHeader><DevNotice what="Transfers and limits"/>
+ <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+  <div className="min-w-0 space-y-4 lg:col-span-2">
+   <Card><div className="mb-2 flex items-center justify-between"><h2 className="font-semibold">Recent transfers</h2><Link className="text-sm font-semibold text-indigo-600" to="/transfers/history">View history</Link></div>
+    {recent.loading?<Skeleton className="h-40"/>:recent.error?<ErrorState message={recent.error} onRetry={recent.reload}/>:!recent.data.items.length?<EmptyState title="No transfers yet" hint="Your transfers will appear here once you make one."/>:recent.data.items.map(t=><TransferRow key={t.id} t={t}/>)}</Card>
+   <Card><div className="mb-3 flex items-center justify-between"><h2 className="font-semibold">Saved beneficiaries</h2><Link className="text-sm font-semibold text-indigo-600" to="/beneficiaries">Manage</Link></div>
+    {ben.loading?<Skeleton className="h-24"/>:ben.error?<ErrorState message={ben.error} onRetry={ben.reload}/>:!(ben.data||[]).length?<EmptyState title="No beneficiaries" hint="Add a beneficiary to send money."/>:<div className="grid gap-2 sm:grid-cols-2">{ben.data.slice(0,6).map(b=><div key={b.id} className="flex items-center justify-between rounded-xl border border-slate-200 p-3 dark:border-slate-700"><div className="min-w-0"><p className="truncate font-semibold">{b.name}</p><BenStatus s={b.status}/></div>{b.status==='active'?<Link className="btn-s !py-1.5" to={`/transfers/new?beneficiaryId=${b.id}`}>Send</Link>:<Link className="btn-s !py-1.5" to={`/beneficiaries/${b.id}`}>View</Link>}</div>)}</div>}</Card>
+  </div>
+  <div className="min-w-0 space-y-4">
+   <Card><h2 className="mb-3 flex items-center gap-2 font-semibold"><Gauge className="h-4 w-4"/>Transfer limits</h2>{lim.loading?<Skeleton className="h-20"/>:lim.error||!lim.data?<p className="muted text-sm">Limit information is not available right now.</p>:<div className="space-y-3 text-sm"><div className="flex justify-between"><span className="muted">Per transfer</span><b>{rupee(lim.data.perTransfer)}</b></div><div><div className="mb-1 flex justify-between"><span className="muted">Daily limit used</span><b>{rupee(lim.data.usedToday)} / {rupee(lim.data.daily)}</b></div><ProgressBar label="Daily transfer limit used" pct={lim.data.usedToday/lim.data.daily*100}/></div></div>}</Card>
+   <Card><h2 className="mb-2 font-semibold">Quick actions</h2><div className="grid gap-2"><Link className="btn-s justify-start" to="/transfers/new?mode=own"><Repeat className="h-4 w-4"/>Between my accounts</Link><Link className="btn-s justify-start" to="/beneficiaries/new"><Users className="h-4 w-4"/>Add beneficiary</Link><Link className="btn-s justify-start" to="/transfers/history"><History className="h-4 w-4"/>Transfer history</Link></div></Card>
+  </div></div></>}

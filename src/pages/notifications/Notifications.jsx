@@ -1,0 +1,11 @@
+import {useState} from 'react';import {Link,useNavigate} from 'react-router-dom';import {ShieldAlert,Wallet,Send,CheckCheck} from 'lucide-react';
+import {useAsync} from '../../hooks/useAsync.js';import {notificationApi} from '../../services/phase3.js';
+import {Card,PageHeader,Skeleton,ErrorState,EmptyState} from '../../components/common/ui.jsx';import {DevNotice,Seg} from '../../components/p3/parts.jsx';import {dt,tm} from '../../utils/format.js';
+const ICON={fraud:ShieldAlert,budget:Wallet,transfer:Send};
+export default function Notifications(){
+ const nav=useNavigate(),[type,setType]=useState('');const{data,loading,error,reload}=useAsync(()=>notificationApi.list({type}),[type]);
+ const open=async n=>{try{if(!n.read)await notificationApi.markRead(n.id)}catch{}nav(n.link)};
+ const all=async()=>{await notificationApi.markAllRead();reload()};
+ return<><PageHeader title="Notifications" sub="Fraud, budget and transfer updates for your accounts."><div className="flex flex-wrap gap-2"><Seg name="Type" value={type} onChange={setType} options={[['','All'],['fraud','Fraud'],['budget','Budgets'],['transfer','Transfers']]}/>{data?.unread>0&&<button className="btn-s" onClick={all}><CheckCheck className="h-4 w-4"/>Mark all read</button>}</div></PageHeader><DevNotice what="Notifications"/>
+ {loading&&!data?<Skeleton className="h-56"/>:error?<ErrorState message={error} onRetry={reload}/>:!data.items.length?<Card><EmptyState title="No notifications" hint="You are all caught up."/></Card>:
+  <Card className="!p-2"><ul>{data.items.map(n=>{const I=ICON[n.type]||ShieldAlert;return<li key={n.id}><button onClick={()=>open(n)} className="flex w-full items-start gap-3 rounded-xl p-3 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"><span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full ${n.type==='fraud'?'bg-rose-100 text-rose-600':'bg-indigo-100 text-indigo-600'}`}><I className="h-4 w-4"/></span><span className="min-w-0 flex-1"><span className="flex items-center gap-2"><b className={n.read?'font-medium':''}>{n.title}</b>{!n.read&&<span aria-label="Unread" className="h-2 w-2 rounded-full bg-rose-500"/>}</span><span className="muted block text-sm">{n.body}</span><span className="muted block text-xs">{dt(n.createdAt)}, {tm(n.createdAt)}</span></span></button></li>})}</ul></Card>}</>}
