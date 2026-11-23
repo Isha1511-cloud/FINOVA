@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "backend",
   "version": "1.0.0",
   "description": "FINOVA backend API (Express + MongoDB via Mongoose)",
   "main": "app.js",
@@ -10,8 +10,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "db:check": "node scripts/check-db.js",
-    "test": "node --test",
-    "server": "npm --prefix server run dev"
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
