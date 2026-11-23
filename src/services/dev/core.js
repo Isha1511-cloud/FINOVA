@@ -56,7 +56,7 @@ let seed=11;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
 })();
 
 // Shared selectors
-export const liveTx=({accountId,from,to}={})=>store.tx.filter(t=>t.status==='completed'&&t.kind!=='own'&&(!accountId||t.accountId===accountId)&&(!from||t.date.slice(0,10)>=from)&&(!to||t.date.slice(0,10)<=to));
+export const liveTx=({accountId,from,to}={})=>store.tx.filter(t=>t.status==='completed'&&t.kind!=='own'&&t.kind!=='loan_disbursal'&&(!accountId||t.accountId===accountId)&&(!from||t.date.slice(0,10)>=from)&&(!to||t.date.slice(0,10)<=to));
 export const debits=p=>liveTx(p).filter(t=>t.type==='debit');
 export const credits=p=>liveTx(p).filter(t=>t.type==='credit');
 export const byCategory=l=>{const m={};l.forEach(t=>{(m[t.category]??={name:t.category,value:0,count:0});m[t.category].value+=t.amount;m[t.category].count++});return Object.values(m).sort((a,b)=>b.value-a.value)};

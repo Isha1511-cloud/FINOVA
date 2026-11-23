@@ -15,10 +15,15 @@ export const BenStatus=({s})=><Badge tone={{active:'green',verified:'blue',pendi
 export const GoalStatus=({s})=><Badge tone={{completed:'green',on_track:'blue',behind:'amber',overdue:'red'}[s]||'slate'}>{label(s)}</Badge>;
 export const BudgetStatus=({s})=><Badge tone={{on_track:'green',approaching:'amber',exceeded:'red'}[s]||'slate'}>{label(s)}</Badge>;
 
+export const LoanStatus=({s})=><Badge tone={{active:'blue',overdue:'red',closed:'slate'}[s]||'slate'}>{label(s)}</Badge>;
+export const AppStatus=({s})=><Badge tone={{under_review:'amber',approved:'green',rejected:'red',declined:'slate',disbursed:'blue'}[s]||'slate'}>{label(s)}</Badge>;
+export const InstStatus=({s})=><Badge tone={{paid:'green',due:'amber',overdue:'red',upcoming:'slate'}[s]||'slate'}>{label(s)}</Badge>;
+
 export const Seg=({value,onChange,options,name})=><div role="group" aria-label={name} className="flex w-full max-w-full rounded-xl border border-slate-200 bg-white p-0.5 text-sm dark:border-slate-700 dark:bg-slate-900 sm:inline-flex sm:w-auto">{options.map(([v,l])=><button key={v} type="button" aria-pressed={value===v} onClick={()=>onChange(v)} className={`min-w-0 flex-1 rounded-[10px] px-2 py-2 font-medium transition sm:flex-none sm:px-3 sm:py-1.5 ${value===v?'bg-indigo-600 text-white':'muted hover:text-primary'}`}>{l}</button>)}</div>;
 
 export const Tabs=({items})=><div className="mb-5 flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800" role="navigation" aria-label="Section">{items.map(([to,l])=><NavLink key={to} to={to} end className={({isActive})=>`shrink-0 border-b-2 px-3 py-2 text-sm font-semibold ${isActive?'border-indigo-600 text-indigo-600':'border-transparent muted hover:text-primary'}`}>{l}</NavLink>)}</div>;
 export const AnalyticsTabs=()=><Tabs items={[['/analytics/insights','Insights'],['/analytics/categories','Categories'],['/analytics/budgets','Budgets'],['/analytics/history','Insight history'],['/analytics/forecast','Forecast']]}/>;
+export const LoanTabs=()=><Tabs items={[['/loans','Overview'],['/loans/apply','Apply'],['/loans/calculator','EMI calculator']]}/>;
 export const GoalTabs=()=><Tabs items={[['/financial-goals','Goals'],['/financial-goals/plan','Savings plan'],['/financial-goals/monthly','Monthly planner']]}/>;
 
 export function useDebounced(v,ms=300){const[x,setX]=useState(v);useEffect(()=>{const t=setTimeout(()=>setX(v),ms);return()=>clearTimeout(t)},[v,ms]);return x}

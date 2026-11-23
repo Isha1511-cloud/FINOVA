@@ -1,7 +1,7 @@
 import {useEffect} from 'react';import {Routes,Route,Navigate,useLocation} from 'react-router-dom';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';import Layout from './components/layout/Layout.jsx';
 import Landing from './pages/Landing.jsx';import FeaturePage from './pages/features/FeaturePage.jsx';import {Login,Register,VerifyOtp,ForgotPassword} from './pages/auth/Auth.jsx';
-import Dashboard from './pages/dashboard/Dashboard.jsx';import Accounts,{AccountDetails} from './pages/accounts/Accounts.jsx';import {CreditCard,Landmark} from 'lucide-react';
+import Dashboard from './pages/dashboard/Dashboard.jsx';import Accounts,{AccountDetails} from './pages/accounts/Accounts.jsx';import {CreditCard} from 'lucide-react';
 import Transactions,{TransactionDetail} from './pages/transactions/Transactions.jsx';
 import TransferDashboard from './pages/transfers/TransferDashboard.jsx';import TransferNew from './pages/transfers/TransferNew.jsx';import TransferDetail from './pages/transfers/TransferDetail.jsx';import TransferHistory from './pages/transfers/TransferHistory.jsx';import MoneyForm from './pages/transfers/MoneyForm.jsx';
 import Beneficiaries from './pages/beneficiaries/Beneficiaries.jsx';import BeneficiaryForm from './pages/beneficiaries/BeneficiaryForm.jsx';import BeneficiaryDetail from './pages/beneficiaries/BeneficiaryDetail.jsx';import Statements from './pages/statements/Statements.jsx';
@@ -9,7 +9,8 @@ import AIAgent from './pages/ai/AIAgent.jsx';import FraudDashboard from './pages
 import InsightsDashboard from './pages/analytics/InsightsDashboard.jsx';import Categories from './pages/analytics/Categories.jsx';import Budgets from './pages/analytics/Budgets.jsx';import InsightHistory from './pages/analytics/InsightHistory.jsx';import Forecast from './pages/analytics/Forecast.jsx';
 import GoalsDashboard from './pages/goals/GoalsDashboard.jsx';import GoalForm from './pages/goals/GoalForm.jsx';import GoalDetail from './pages/goals/GoalDetail.jsx';import SavingsPlan from './pages/goals/SavingsPlan.jsx';import MonthlyPlanner from './pages/goals/MonthlyPlanner.jsx';import Notifications from './pages/notifications/Notifications.jsx';
 import {Settings,Support,ComingSoon} from './pages/Misc.jsx';
-const SOON=[['cards','Virtual Cards',CreditCard,'Create and manage virtual cards here soon.'],['loans','Loans',Landmark,'Apply for and track loans here soon.']];
+import LoansDashboard from './pages/loans/LoansDashboard.jsx';import LoanCalculator from './pages/loans/LoanCalculator.jsx';import LoanApply from './pages/loans/LoanApply.jsx';import LoanApplication from './pages/loans/LoanApplication.jsx';import LoanDetail from './pages/loans/LoanDetail.jsx';
+const SOON=[['cards','Virtual Cards',CreditCard,'Create and manage virtual cards here soon.']];
 function ScrollManager(){const{pathname,hash}=useLocation();useEffect(()=>{if(hash){setTimeout(()=>document.getElementById(hash.slice(1))?.scrollIntoView(),0)}else window.scrollTo(0,0)},[pathname,hash]);return null}
 export default function App(){return<><ScrollManager/><Routes>
  <Route path="/" element={<Landing/>}/><Route path="/features/:key" element={<FeaturePage/>}/><Route path="/login" element={<Login/>}/><Route path="/register" element={<Register/>}/><Route path="/verify-otp" element={<VerifyOtp/>}/><Route path="/forgot-password" element={<ForgotPassword/>}/>
@@ -20,6 +21,7 @@ export default function App(){return<><ScrollManager/><Routes>
   <Route path="/statements" element={<Statements/>}/><Route path="/ai-agent" element={<AIAgent/>}/><Route path="/fraud-alerts" element={<FraudDashboard/>}/><Route path="/fraud-alerts/:alertId" element={<FraudDetail/>}/><Route path="/fraud-detection" element={<Navigate to="/fraud-alerts" replace/>}/>
   <Route path="/analytics" element={<Navigate to="/analytics/insights" replace/>}/><Route path="/financial-insights" element={<Navigate to="/analytics/insights" replace/>}/><Route path="/analytics/insights" element={<InsightsDashboard/>}/><Route path="/analytics/categories" element={<Categories/>}/><Route path="/analytics/budgets" element={<Budgets/>}/><Route path="/analytics/history" element={<InsightHistory/>}/><Route path="/analytics/forecast" element={<Forecast/>}/>
   <Route path="/goals" element={<Navigate to="/financial-goals" replace/>}/><Route path="/financial-goals" element={<GoalsDashboard/>}/><Route path="/financial-goals/new" element={<GoalForm/>}/><Route path="/financial-goals/plan" element={<SavingsPlan/>}/><Route path="/financial-goals/monthly" element={<MonthlyPlanner/>}/><Route path="/financial-goals/:id" element={<GoalDetail/>}/><Route path="/notifications" element={<Notifications/>}/>
+  <Route path="/loans" element={<LoansDashboard/>}/><Route path="/loans/calculator" element={<LoanCalculator/>}/><Route path="/loans/apply" element={<LoanApply/>}/><Route path="/loans/applications/:id" element={<LoanApplication/>}/><Route path="/loans/:id" element={<LoanDetail/>}/>
   {SOON.map(([p,t,I,h])=><Route key={p} path={'/'+p} element={<ComingSoon title={t} icon={I} hint={h}/>}/>)}
   <Route path="/settings" element={<Settings/>}/><Route path="/support" element={<Support/>}/></Route>
  <Route path="*" element={<Navigate to="/" replace/>}/></Routes></>}

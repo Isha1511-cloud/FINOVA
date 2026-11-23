@@ -1,4 +1,5 @@
 import {store,wait,fail,uid,TODAY_ISO} from './core.js';
+import {loanNotes} from './loans.js';
 import {budgets} from './insights.js';
 
 const R=(code,text,kind)=>({code,text,kind});
@@ -42,6 +43,7 @@ export const notifications={
  async list({type=''}={}){await wait(250);const items=[
    ...A.filter(a=>['new','under_review'].includes(a.status)||a.id==='f3').map(a=>({id:'n-fr-'+a.id,type:'fraud',title:a.status==='new'?'Transaction flagged for review':'Fraud alert update',body:`${a.risk[0].toUpperCase()+a.risk.slice(1)}-risk alert on a payment to ${a.counterparty}. Open it to review the details.`,createdAt:a.createdAt,link:`/fraud-alerts/${a.id}`})),
    ...(await budgets.alerts()).map(b=>({id:'n-bg-'+b.id,type:'budget',title:b.title,body:b.body,createdAt:TODAY_ISO+'T08:00:00',link:`/analytics/budgets`})),
+   ...loanNotes(),
    ...store.tx.filter(t=>t.kind==='beneficiary'&&['failed','reversed'].includes(t.status)).map(t=>({id:'n-tr-'+t.id,type:'transfer',title:`Transfer ${t.status}`,body:`Your transfer to ${t.beneficiaryName} was ${t.status}.`,createdAt:t.events.at(-1).at,link:`/transfers/${t.id}`}))]
    .filter(n=>!type||n.type===type).map(n=>({...n,read:read.has(n.id)})).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   return{items,unread:items.filter(n=>!n.read).length}},

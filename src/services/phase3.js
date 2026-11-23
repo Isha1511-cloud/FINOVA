@@ -70,4 +70,18 @@ export const goalApi={
 export const forecastApi={
  get:p=>pick(()=>d.forecast.get(p),()=>http('/forecast',{params:p})),                              // GET /forecast?horizon&spendingDelta&incomeDelta&accountId
  upcoming:p=>pick(()=>d.forecast.upcoming(p),()=>http('/forecast/upcoming',{params:p}))};          // GET /forecast/upcoming?accountId
+export const loanApi={
+ products:()=>pick(()=>d.loans.products(),()=>http('/loans/products')),                                   // GET  /loans/products
+ list:()=>pick(()=>d.loans.list(),()=>http('/loans')),                                                    // GET  /loans → {items,totals}
+ get:id=>pick(()=>d.loans.get(id),()=>http(`/loans/${id}`)),                                              // GET  /loans/:id (includes schedule)
+ payEmi:(id,b)=>changed(pick(()=>d.loans.payEmi(id,b),()=>http(`/loans/${id}/payments`,{method:'POST',body:b}))),          // POST /loans/:id/payments {accountId}
+ prepay:(id,b)=>changed(pick(()=>d.loans.prepay(id,b),()=>http(`/loans/${id}/prepayments`,{method:'POST',body:b}))),       // POST /loans/:id/prepayments {accountId,amount}
+ foreclose:(id,b)=>changed(pick(()=>d.loans.foreclose(id,b),()=>http(`/loans/${id}/foreclosure`,{method:'POST',body:b}))), // POST /loans/:id/foreclosure {accountId}
+ applications:()=>pick(()=>d.loans.applications(),()=>http('/loan-applications')),                        // GET  /loan-applications
+ application:id=>pick(()=>d.loans.application(id),()=>http(`/loan-applications/${id}`)),                  // GET  /loan-applications/:id
+ apply:b=>changed(pick(()=>d.loans.apply(b),()=>http('/loan-applications',{method:'POST',body:b}))),       // POST /loan-applications
+ check:id=>changed(pick(()=>d.loans.check(id),()=>http(`/loan-applications/${id}/status`))),               // GET  /loan-applications/:id/status
+ accept:(id,b)=>changed(pick(()=>d.loans.accept(id,b),()=>http(`/loan-applications/${id}/accept`,{method:'POST',body:b}))), // POST accept offer → disburses
+ withdraw:id=>changed(pick(()=>d.loans.withdraw(id),()=>http(`/loan-applications/${id}/withdraw`,{method:'POST'})))};     // POST /loan-applications/:id/withdraw
+export const EMPLOYMENT=d.EMPLOYMENT;
 export const GOAL_CATEGORIES=d.GOAL_CATEGORIES;

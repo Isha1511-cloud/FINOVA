@@ -23,6 +23,9 @@ export const CHECKS=[
  ['goals.list','GET','/goals',null,{items:[{id:'string',name:'string',category:'string',target:'number',saved:'number',remaining:'number',pct:'number',status:'string',targetDate:'string'}],totals:{count:'number',target:'number',saved:'number'},note:'string?'}],
  ['goals.plan','POST','/goals/plan',{target:60000,saved:0,targetDate:'2027-06-30'},{remaining:'number',months:'number',suggestedMonthly:'number',estimatedCompletion:'string?',assumptions:['string']}],
  ['forecast','GET','/forecast',null,{history:[month],projection:[proj],baseline:[proj],startBalance:'number',generatedAt:'string',method:'string',assumptions:['string']}],
+ ['loans.products','GET','/loans/products',null,[{type:'string',name:'string',min:'number',max:'number',minTenure:'number',maxTenure:'number',rate:'number',feePct:'number',foreclosurePct:'number',purposes:['string']}]],
+ ['loans.list','GET','/loans',null,{items:[{id:'string',type:'string',name:'string',principal:'number',rate:'number',tenure:'number',emi:'number',status:'string',outstanding:'number',pct:'number',disbursedOn:'string',accountId:'string'}],totals:{active:'number',outstanding:'number',monthlyEmi:'number',overdue:'number'}}],
+ ['loans.applications','GET','/loan-applications',null,{items:[{id:'string',type:'string',amount:'number',tenure:'number',status:'string',createdAt:'string',events:[{at:'string',status:'string',note:'string'}]}]}],
  ['forecast.upcoming','GET','/forecast/upcoming',null,{scheduled:'array',scheduledNote:'string?',predicted:[{label:'string',kind:'string',amount:'number',typicalDay:'number',basis:'string'}],predictedNote:'string?'}]];
 
 export function validate(v,shape,path='$'){

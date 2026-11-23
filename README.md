@@ -42,3 +42,6 @@ The UI is built mobile-first and tested against these breakpoints: `xs` 420px, `
 - Charts use narrower axes on phones; segmented controls and modals go full-width / bottom-sheet.
 - After changing styles, rebuild the standalone bundle with `npm run build:single` (the committed `standalone/finova.html` is a prebuilt file).
 
+## Loans
+
+Routes: `/loans` (overview), `/loans/apply`, `/loans/calculator`, `/loans/applications/:id`, `/loans/:id`. In demo mode (`VITE_USE_MOCK !== 'false'`) data comes from `src/services/dev/loans.js`; endpoints are in `docs/BACKEND_CONTRACTS.md` and `src/services/phase3.js` (`loanApi`). EMI maths lives in `src/utils/loan.js`.
