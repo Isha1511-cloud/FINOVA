@@ -26,6 +26,7 @@ export const CHECKS=[
  ['loans.products','GET','/loans/products',null,[{type:'string',name:'string',min:'number',max:'number',minTenure:'number',maxTenure:'number',rate:'number',feePct:'number',foreclosurePct:'number',purposes:['string']}]],
  ['loans.list','GET','/loans',null,{items:[{id:'string',type:'string',name:'string',principal:'number',rate:'number',tenure:'number',emi:'number',status:'string',outstanding:'number',pct:'number',disbursedOn:'string',accountId:'string'}],totals:{active:'number',outstanding:'number',monthlyEmi:'number',overdue:'number'}}],
  ['loans.applications','GET','/loan-applications',null,{items:[{id:'string',type:'string',amount:'number',tenure:'number',status:'string',createdAt:'string',events:[{at:'string',status:'string',note:'string'}]}]}],
+ ['cards.list','GET','/cards',null,{items:[{id:'string',label:'string',network:'string',purpose:'string',last4:'string',expiry:'string',accountId:'string',status:'string',limits:{perTxn:'number',daily:'number',monthly:'number'},controls:{online:'boolean',international:'boolean'},usage:{today:'number',month:'number'}}],totals:{active:'number',frozen:'number',spentMonth:'number',max:'number',open:'number'}}],
  ['forecast.upcoming','GET','/forecast/upcoming',null,{scheduled:'array',scheduledNote:'string?',predicted:[{label:'string',kind:'string',amount:'number',typicalDay:'number',basis:'string'}],predictedNote:'string?'}]];
 
 export function validate(v,shape,path='$'){

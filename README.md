@@ -45,3 +45,7 @@ The UI is built mobile-first and tested against these breakpoints: `xs` 420px, `
 ## Loans
 
 Routes: `/loans` (overview), `/loans/apply`, `/loans/calculator`, `/loans/applications/:id`, `/loans/:id`. In demo mode (`VITE_USE_MOCK !== 'false'`) data comes from `src/services/dev/loans.js`; endpoints are in `docs/BACKEND_CONTRACTS.md` and `src/services/phase3.js` (`loanApi`). EMI maths lives in `src/utils/loan.js`.
+
+## Virtual cards
+
+Routes: `/cards`, `/cards/new`, `/cards/:id`. Demo data lives in `src/services/dev/cards.js` (`cardApi` in `src/services/phase3.js`); the card artwork is `src/components/cards/CardFace.jsx`. Full card numbers are only returned by `POST /cards/:id/reveal` after an OTP check. See `docs/BACKEND_CONTRACTS.md`.

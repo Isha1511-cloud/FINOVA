@@ -5,7 +5,7 @@ const monthRow=(k,acc)=>{const r={from:k+'-01',to:k+'-31',accountId:acc},inc=sum
 const DEFS='Income = completed credits; expenses = completed debits. Transfers between your own accounts are excluded. Pending, failed and reversed items are excluded.';
 
 export const insights={
- async capabilities(){await wait(100);return{categoryEdit:true,budgets:true,insightDismiss:true,insightSave:import.meta.env?.VITE_DEMO_INSIGHT_SAVE==='true',cardLock:false,goalsPersist:true,planPersist:true}},
+ async capabilities(){await wait(100);return{categoryEdit:true,budgets:true,insightDismiss:true,insightSave:import.meta.env?.VITE_DEMO_INSIGHT_SAVE==='true',cardLock:true,goalsPersist:true,planPersist:true}},
  async summary(p){await wait(400);const r=rangeOf(p),d=debits(r),c=credits(r),inc=sum(c),exp=sum(d),cats=byCategory(d);
   const months=monthsBetween(r.from,r.to).map(k=>monthRow(k,r.accountId));
   const cur=monthKey(r.to),prev=addMonths(cur,-1),cm=months.find(m=>m.key===cur),pm=months.find(m=>m.key===prev);

@@ -72,6 +72,21 @@ Loan: `{id,type,name,principal,rate,tenure,emi,disbursedOn,closedOn?,accountId,s
 Offer: `{amount,rate,tenure,emi,processingFee,netDisbursal,totalInterest,totalPayable,validTill}`.
 Rules to keep consistent: EMI uses reducing-balance interest (`src/utils/loan.js`); the bank's offer and schedule are authoritative over the calculator. Disbursals must not count as income in insights (the demo tags them `kind:'loan_disbursal'`); EMIs count as expenses. Loan events appear in `/notifications` with `type:'loan'`.
 
+## Virtual cards
+| Endpoint | Notes |
+|---|---|
+| `GET /cards` | `{items:[Card],totals:{active,frozen,spentMonth,max,open}}`. **Never** returns the full card number or CVV, only `last4` and `expiry`. |
+| `POST /cards` | `{label,network:'Visa'|'Mastercard'|'RuPay',purpose,accountId,singleUse?,limits:{perTxn,daily,monthly},controls?:{online,international}}` → Card. 400 `validation`, 409 `limit` (max 5 non-blocked cards). Caps: ₹1,00,000 per transaction, ₹2,00,000 per day, ₹5,00,000 per month; perTxn ≤ daily ≤ monthly. |
+| `GET /cards/:id` | Card plus `activity:[{id,date,merchant,category,amount,status:'approved'|'declined',reason?,txnId?}]` and `events:[{at,note}]`. 404 unless owned. |
+| `PATCH /cards/:id` | `{label?,limits?,controls?}`. 409 for a blocked card. |
+| `POST /cards/:id/freeze` · `/unfreeze` | Reversible. Frozen cards decline every authorisation. |
+| `POST /cards/:id/block` | Permanent and irreversible. |
+| `POST /cards/:id/reveal` | → `{number,cvv,expiry,holder}`. **Must require a fresh step-up**: an OTP verified via `/auth/otp/verify` within the last few minutes. Send `Cache-Control: no-store`, never log the body, 409 for blocked cards. The UI hides the details again after 30 seconds. |
+
+Card: `{id,label,network,purpose,last4,expiry,holder,accountId,status:'active'|'frozen'|'blocked',createdAt,singleUse,limits,controls,usage:{today,month}}`.
+Authorisation rules (applied by the backend on every card payment, in this order): blocked → frozen → online off → international off → per-transaction limit → daily limit → monthly limit → account balance. Declines are stored in `activity` with a customer-readable `reason`, and recent declines appear in `/notifications` with `type:'card'`. Approved payments debit the linked account, create a transaction (`kind:'card'`, `cardId`) and count as expenses. Single-use cards become `blocked` after their first approved payment. Set `cardLock:true` in `/capabilities` once freeze is supported.
+`POST /cards/:id/simulate` exists **only** in the demo adapter (it powers the "Try a payment" tool). Do not implement it in production.
+
 ## Verifying your backend
 `node scripts/verify-contract.mjs --api https://your-host/api --token <JWT>` calls the read-only endpoints (plus the
 side-effect-free `POST /transfers/preview` and `POST /goals/plan`) and checks every response shape against

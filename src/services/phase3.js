@@ -83,5 +83,16 @@ export const loanApi={
  check:id=>changed(pick(()=>d.loans.check(id),()=>http(`/loan-applications/${id}/status`))),               // GET  /loan-applications/:id/status
  accept:(id,b)=>changed(pick(()=>d.loans.accept(id,b),()=>http(`/loan-applications/${id}/accept`,{method:'POST',body:b}))), // POST accept offer → disburses
  withdraw:id=>changed(pick(()=>d.loans.withdraw(id),()=>http(`/loan-applications/${id}/withdraw`,{method:'POST'})))};     // POST /loan-applications/:id/withdraw
+export const cardApi={
+ list:()=>pick(()=>d.cards.list(),()=>http('/cards')),                                                    // GET   /cards → {items,totals}  (never returns full PAN or CVV)
+ get:id=>pick(()=>d.cards.get(id),()=>http(`/cards/${id}`)),                                              // GET   /cards/:id (includes activity + events)
+ create:b=>pick(()=>d.cards.create(b),()=>http('/cards',{method:'POST',body:b})),                         // POST  /cards
+ update:(id,b)=>pick(()=>d.cards.update(id,b),()=>http(`/cards/${id}`,{method:'PATCH',body:b})),          // PATCH /cards/:id {label?,limits?,controls?}
+ freeze:id=>pick(()=>d.cards.freeze(id),()=>http(`/cards/${id}/freeze`,{method:'POST'})),                 // POST  /cards/:id/freeze
+ unfreeze:id=>pick(()=>d.cards.unfreeze(id),()=>http(`/cards/${id}/unfreeze`,{method:'POST'})),           // POST  /cards/:id/unfreeze
+ block:id=>pick(()=>d.cards.block(id),()=>http(`/cards/${id}/block`,{method:'POST'})),                    // POST  /cards/:id/block (permanent)
+ reveal:id=>pick(()=>d.cards.reveal(id),()=>http(`/cards/${id}/reveal`,{method:'POST'})),                 // POST  /cards/:id/reveal → {number,cvv,expiry,holder}; requires recent OTP step-up
+ simulate:(id,b)=>changed(pick(()=>d.cards.simulate(id,b),()=>Promise.reject(new Error('Not available.'))))}; // demo adapter only
+export const CARD_NETWORKS=d.NETWORKS,CARD_PURPOSES=d.PURPOSES,CARD_CAPS=d.CAPS,CARD_MAX=d.MAX_CARDS;
 export const EMPLOYMENT=d.EMPLOYMENT;
 export const GOAL_CATEGORIES=d.GOAL_CATEGORIES;
