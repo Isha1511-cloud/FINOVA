@@ -10,7 +10,9 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "db:check": "node scripts/check-db.js",
-    "test": "node --test"
+    "test": "node --test",
+    "seed": "node scripts/seed.js",
+    "verify:api": "node scripts/verify-api.js"
   },
   "keywords": [],
   "author": "",

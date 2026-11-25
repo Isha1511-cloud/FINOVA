@@ -1,9 +1,9 @@
 import {useState} from 'react';import {Link,useParams} from 'react-router-dom';import {Eye,EyeOff,Send,ArrowDownToLine,ArrowUpFromLine,ArrowLeftRight,FileText} from 'lucide-react';
-import {useAsync} from '../../hooks/useAsync.js';import {accountService} from '../../services/index.js';import {useApp} from '../../context/AppContext.jsx';
+import {useAsync} from '../../hooks/useAsync.js';import {liveAccountService as accountService} from '../../services/index.js';import {SourceBadge} from '../../components/common/DataSource.jsx';import {useApp} from '../../context/AppContext.jsx';
 import {Card,Skeleton,ErrorState,EmptyState,PageHeader,Badge,Amt} from '../../components/common/ui.jsx';import AccountCard from '../../components/banking/AccountCard.jsx';import {mask,dt} from '../../utils/format.js';
 export default function Accounts(){const{data,loading,error,reload}=useAsync(accountService.list);
  if(error)return<ErrorState message="Unable to load your accounts. Please try again." onRetry={reload}/>;
- return<><PageHeader title="My Accounts" sub="All your FINOVA accounts in one place."/>{loading?<div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-44"/><Skeleton className="h-44"/></div>:!data.length?<EmptyState title="No accounts yet." hint="Your accounts will appear here once they are opened."/>:
+ return<><PageHeader title="My Accounts" sub="All your FINOVA accounts in one place."><SourceBadge module="accounts"/></PageHeader>{loading?<div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-44"/><Skeleton className="h-44"/></div>:!data.length?<EmptyState title="No accounts yet." hint="Your accounts will appear here once they are opened."/>:
  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{data.map(a=><div key={a.id} className="space-y-2"><AccountCard a={a}/><Link className="btn-s w-full" to={`/accounts/${a.id}`}>View details</Link></div>)}</div>}</>}
 const Num=({n})=>{const[s,set]=useState(false);return<span className="inline-flex items-center gap-2 font-mono">{s?n:mask(n)}<button aria-label={s?'Hide account number':'Show account number'} onClick={()=>set(!s)}>{s?<EyeOff className="h-4 w-4"/>:<Eye className="h-4 w-4"/>}</button></span>};
 export function AccountDetails(){const{accountId:id}=useParams();const{user}=useApp();const{data:a,loading,error,reload}=useAsync(()=>accountService.get(id),[id]);

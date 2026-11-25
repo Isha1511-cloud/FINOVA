@@ -49,3 +49,35 @@ The root file's `"scripts"` block was overwritten with the backend's. Replace it
 ## Notes
 - `routes/`, `controllers/`, `models/` were empty in the supplied project and are kept as empty folders; mount routers in `app.js` where marked.
 - Changed lines are marked `// CHANGED` in `app.js`; `config/db.js` and `config/env.js` are rewritten/new.
+
+---
+
+## Real data layer: Users, Accounts, Transactions (MongoDB)
+
+**Collections:** `users`, `accounts`, `transactions` (Mongoose creates them on first write / `npm run seed`).
+
+**One-time setup after pulling these changes**
+1. Rotate the Atlas DB password (the old one was in the zip) and put the new URI in `.env` (never commit it).
+2. Add `JWT_SECRET` to `.env` (>= 32 random chars) and to the Render environment variables.
+3. `npm install && npm run seed` (creates fictional demo data; safe to re-run). If the database was previously
+   auto-seeded by the old code, run `npm run seed -- --clean-legacy` once to remove those old unowned records.
+4. `npm run verify:api` runs the end-to-end checks against your database (auth, ownership, dashboard math).
+
+**Demo login (fictional, development only):** `demo@finova.com` / `Demo@1234` (override with `SEED_DEMO_PASSWORD`).
+
+**APIs** (all except register/login require `Authorization: Bearer <token>`; identity comes from the token only)
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/api/auth/register`, `/api/auth/login` | return `{ token, user }` |
+| GET | `/api/auth/me` | current user |
+| GET | `/api/accounts`, `/api/accounts/:id` | own accounts; number masked (`XXXXXXXX0001`) |
+| GET | `/api/transactions` | filters: `q,type,category,status,accountId,from,to,min,max,sort,page,pageSize` |
+| GET | `/api/transactions/:id` | by document id or `referenceId` |
+| GET | `/api/dashboard/summary` | `?days=30&recent=5` -> balance, income, expenses, accounts, recent txns |
+
+Other users' records return 404 (existence is not revealed). `/api/deposits`, `/api/withdrawals`, `/api/statements`
+share these collections and are now authenticated and owner-scoped too (their features are otherwise unchanged).
+
+**Render:** set `MONGODB_URI`, `MONGODB_DB_NAME`, `JWT_SECRET`, `FRONTEND_URL` (your Vercel origin; comma-separate several), `NODE_ENV=production`.
+Health check path: `/api/health`. Do not run the seed in production unless you intend to (`ALLOW_SEED=true`).

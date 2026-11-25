@@ -57,7 +57,7 @@ test("app boots with no DB and health reports degraded (503)", async () => {
 
 test("unreachable DB fails fast with hint and exit code 1", () => {
   const r = spawnSync(process.execPath, [path.join(__dirname, "..", "app.js")], {
-    env: { PATH: process.env.PATH, MONGODB_URI: "mongodb://127.0.0.1:1/x", DB_CONNECT_RETRIES: "1", DB_SERVER_SELECTION_TIMEOUT_MS: "1500" },
+    env: { PATH: process.env.PATH, JWT_SECRET: "x".repeat(40), MONGODB_URI: "mongodb://127.0.0.1:1/x", DB_CONNECT_RETRIES: "1", DB_SERVER_SELECTION_TIMEOUT_MS: "1500" },
     encoding: "utf8", timeout: 20000,
   });
   assert.strictEqual(r.status, 1);

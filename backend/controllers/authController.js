@@ -65,6 +65,13 @@ async function register(req, res) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) || name.trim().length < 2 || name.trim().length > 60) {
+      return res.status(400).json({
+        message: "Enter a valid name (2-60 characters) and email address.",
+        code: "validation",
+      });
+    }
+
     const existingUser = await User.findOne({
       email: normalizedEmail,
     });
@@ -82,7 +89,7 @@ async function register(req, res) {
       name: name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
-      mobile: mobile || null,
+      mobile: typeof mobile === "string" && mobile.trim() ? mobile.trim().slice(0, 20) : null,
     });
 
     const token = generateToken(user);
@@ -95,7 +102,7 @@ async function register(req, res) {
     });
 
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Registration error:", error && error.message);
 
     if (error.code === 11000) {
       return res.status(409).json({
@@ -165,13 +172,20 @@ async function login(req, res) {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Login error:", error && error.message);
 
     return res.status(500).json({
       message: "Login failed.",
       code: "server_error",
     });
   }
+}
+
+// CURRENT USER (identity comes from the verified token)
+async function me(req, res) {
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(401).json({ message: "Invalid or expired token.", code: "unauthorized" });
+  return res.json({ ok: true, user: safeUser(user) });
 }
 
 // OTP SEND - Not configured yet
@@ -199,6 +213,7 @@ async function resetPassword(req, res) {
 }
 
 module.exports = {
+  me,
   login,
   register,
   sendOtp,

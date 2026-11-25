@@ -1,7 +1,7 @@
 import {Sparkles,ShieldAlert} from 'lucide-react';import {Link} from 'react-router-dom';
 import {PieChart,Pie,Cell,Tooltip,ResponsiveContainer} from 'recharts';
 import {TxItem} from '../transactions/TxItem.jsx';
-export const COLORS=['#6366f1','#10b981','#f59e0b','#ef4444','#06b6d4','#8b5cf6','#ec4899','#64748b'];
+export const COLORS=['#1D5BD8','#0E9F9A','#12264A','#4F8CFF','#9AA6B8','#5EEAD4','#3B4A66','#B9CFF7'];
 export default function AIChatMessage({m}){
  if(m.role==='user')return<div className="flex justify-end"><div className="max-w-[85%] rounded-2xl rounded-br-sm bg-indigo-600 px-4 py-2.5 text-sm text-white sm:max-w-[70%]">{m.text}</div></div>;
  return<div className="flex gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20"><Sparkles className="h-4 w-4"/></span>

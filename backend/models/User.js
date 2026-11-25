@@ -46,6 +46,12 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "blocked"],
       default: "active",
     },
+
+    // True only for the fictional user created by scripts/seed.js.
+    isDemo: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

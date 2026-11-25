@@ -9,6 +9,7 @@ const { isDBConnected, disconnectDB } = require("./config/db");
 
 function createApp(config = getConfig()) {
   const app = express();
+  app.set("trust proxy", 1); // Render sits behind a proxy; needed for correct client IPs (rate limiting)
 
   // CHANGED: origin was `process.env.FRONTEND_URL` (could be undefined or a
   // placeholder like "[FRONTEND_ORIGIN]", which breaks CORS). Now a validated allow-list.
@@ -32,6 +33,8 @@ function createApp(config = getConfig()) {
   const { depositsRouter, withdrawalsRouter } = require("./routes/cashflow");
   app.use("/api/auth", require("./routes/auth"));
   app.use("/auth", require("./routes/auth"));
+  app.use("/api/dashboard", require("./routes/dashboard"));
+  app.use("/dashboard", require("./routes/dashboard"));
   app.use("/api/accounts", require("./routes/accounts"));
   app.use("/accounts", require("./routes/accounts"));
   app.use("/api/transactions", require("./routes/transactions"));
@@ -56,6 +59,10 @@ function createApp(config = getConfig()) {
 
 async function startServer() {
   const config = getConfig();
+  // Authentication cannot work without a signing secret: fail fast with a clear message (value never logged).
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    throw new Error("JWT_SECRET is missing or shorter than 32 characters. Generate one with: node -e \"console.log(require('crypto').randomBytes(48).toString('hex'))\"");
+  }
   if (config.frontendUrlWasPlaceholder) logger.warn("FRONTEND_URL is a placeholder; using http://localhost:5173 for CORS.");
 
   if (config.mongoUri) {

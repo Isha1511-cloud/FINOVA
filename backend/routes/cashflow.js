@@ -1,14 +1,12 @@
 "use strict";
 const express = require("express");
+const { requireAuth } = require("../middleware/auth");
 const transactionController = require("../controllers/transactionController");
 
 const depositsRouter = express.Router();
-depositsRouter.post("/", transactionController.deposit);
+depositsRouter.post("/", requireAuth, transactionController.deposit);
 
 const withdrawalsRouter = express.Router();
-withdrawalsRouter.post("/", transactionController.withdraw);
+withdrawalsRouter.post("/", requireAuth, transactionController.withdraw);
 
-module.exports = {
-  depositsRouter,
-  withdrawalsRouter,
-};
+module.exports = { depositsRouter, withdrawalsRouter };

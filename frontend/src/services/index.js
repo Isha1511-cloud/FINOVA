@@ -1,18 +1,26 @@
 // Single switch between mock (demo) and real REST API. Each method documents its endpoint.
-import {mock} from './mock.js';import {http} from './http.js';
+import {mock} from './mock.js';import {http} from './http.js';import {isReal} from './config.js';
 const M=import.meta.env.VITE_USE_MOCK!=='false';
 const pick=(m,real)=>M?m():real();
+// Per-module variant: real backend only when that module is enabled (see config.js), otherwise demo data.
+const pickM=(mod,m,real)=>isReal(mod)?real():m();
 export const authService={
- login:d=>pick(()=>mock.login(d),()=>http('/auth/login',{method:'POST',body:d})),            // POST /auth/login
- register:d=>pick(()=>mock.register(d),()=>http('/auth/register',{method:'POST',body:d})),   // POST /auth/register
+ login:d=>pickM('auth',()=>mock.login(d),()=>http('/auth/login',{method:'POST',body:d})),            // POST /auth/login
+ register:d=>pickM('auth',()=>mock.register(d),()=>http('/auth/register',{method:'POST',body:d})),   // POST /auth/register
  sendOtp:d=>pick(()=>mock.sendOtp(d),()=>http('/auth/otp/send',{method:'POST',body:d})),     // POST /auth/otp/send
  verifyOtp:d=>pick(()=>mock.verifyOtp(d),()=>http('/auth/otp/verify',{method:'POST',body:d})),// POST /auth/otp/verify
  resetPassword:d=>pick(()=>mock.resetPassword(d),()=>http('/auth/reset-password',{method:'POST',body:d}))};
 export const accountService={list:()=>pick(()=>mock.accounts(),()=>http('/accounts')),
  get:id=>pick(()=>mock.accounts().then(l=>l.find(a=>a.id===id)||Promise.reject(new Error('Account not found'))),()=>http(`/accounts/${id}`))}; // GET /accounts, GET /accounts/:id      // GET /accounts
+// Accounts used by the CONNECTED pages (Accounts, Transactions, Dashboard). Other modules that still run on demo data
+// (transfers, cards, loans, fraud...) keep using accountService above, so their demo flows keep working.
+export const liveAccountService={list:()=>pickM('accounts',()=>mock.accounts(),()=>http('/accounts')),
+ get:id=>pickM('accounts',()=>mock.accounts().then(l=>l.find(a=>a.id===id)||Promise.reject(new Error('Account not found'))),()=>http(`/accounts/${id}`))};
 export const transactionService={
- list:p=>pick(()=>mock.txList(p),()=>http('/transactions',{params:p})),                      // GET /transactions
- get:id=>pick(()=>mock.txGet(id),()=>http(`/transactions/${id}`))};                          // GET /transactions/:id
+ list:p=>pickM('transactions',()=>mock.txList(p),()=>http('/transactions',{params:p})),                      // GET /transactions
+ get:id=>pickM('transactions',()=>mock.txGet(id),()=>http(`/transactions/${id}`))};                          // GET /transactions/:id
+// Real-only: returns null when the dashboard module is not connected (the page then falls back to demo insights).
+export const dashboardService={summary:p=>isReal('dashboard')?http('/dashboard/summary',{params:p}):Promise.resolve(null)}; // GET /dashboard/summary                          // GET /transactions/:id
 export const transferService={
  transfer:d=>pick(()=>mock.transfer(d),()=>http('/transfers',{method:'POST',body:d})),       // POST /transfers
  deposit:d=>pick(()=>mock.money('deposit',d),()=>http('/deposits',{method:'POST',body:d})),  // POST /deposits
