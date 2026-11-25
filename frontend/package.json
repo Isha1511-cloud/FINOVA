@@ -12,6 +12,7 @@
     "verify:contract": "node scripts/verify-contract.mjs"
   },
   "dependencies": {
+    "framer-motion": "^11.18.2",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",

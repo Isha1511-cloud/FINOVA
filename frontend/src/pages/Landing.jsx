@@ -23,7 +23,7 @@ export default function Landing() {
   return (
     <div className="overflow-x-hidden">
       {/* Hero Section */}
-      <section className="grid-bg relative overflow-hidden bg-gradient-to-br from-[#082B57] via-primary to-[#0B8A9A] pb-24 text-white sm:pb-32">
+      <section className="grid-bg relative overflow-hidden bg-gradient-to-br from-navy-950 via-navy-800 to-[#1A3A94] pb-24 text-white sm:pb-32">
         {/* Animated dynamic gradient orbs */}
         <div className="absolute -left-20 top-10 h-[28rem] w-[28rem] rounded-full bg-secondary/35 blur-3xl animate-blob pointer-events-none" />
         <div className="absolute -right-20 top-32 h-[30rem] w-[30rem] rounded-full bg-accent/40 blur-3xl animate-blob-slow pointer-events-none" />
@@ -65,7 +65,7 @@ export default function Landing() {
               Everyday banking with an intelligent assistant that explains your spending, spots unusual activity and answers your questions instantly.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/register" className="btn-p !bg-white !text-primary shadow-2xl shadow-blue-900/40 hover:-translate-y-1 hover:shadow-blue-900/60 !px-7 !py-3.5 text-base font-bold transition">
+              <Link to="/register" className="btn-light shadow-2xl shadow-blue-900/40 hover:-translate-y-1 hover:shadow-blue-900/60 !px-7 !py-3.5 text-base font-bold transition">
                 Open an account
                 <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
               </Link>
@@ -178,7 +178,7 @@ export default function Landing() {
 
       {/* Security Showcase */}
       <section id="security" className="mx-auto max-w-6xl 2xl:max-w-7xl px-4 pb-16 sm:pb-24">
-        <div className="grid-bg relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#082B57] via-[#0B3D7A] to-primary p-7 text-white sm:rounded-[2.5rem] sm:p-14 shadow-2xl">
+        <div className="grid-bg relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-950 via-navy-800 to-[#1A3A94] p-7 text-white sm:rounded-[2.5rem] sm:p-14 shadow-2xl">
           <div className="absolute -right-16 -top-16 h-80 w-80 rounded-full bg-accent/30 blur-3xl animate-blob pointer-events-none" />
           <div className="relative">
             <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#5EEAD4]">

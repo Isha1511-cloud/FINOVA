@@ -1,18 +1,46 @@
-import {Link,useNavigate} from 'react-router-dom';import {Wallet,TrendingUp,TrendingDown,PiggyBank,Send,ArrowDownToLine,ArrowUpFromLine,UserPlus,FileText,Zap,Landmark} from 'lucide-react';
-import {useAsync} from '../../hooks/useAsync.js';import {accountService,transactionService,aiService} from '../../services/index.js';import {loanApi} from '../../services/phase3.js';import {useApp} from '../../context/AppContext.jsx';
-import {Card,StatCard,Skeleton,ErrorState,EmptyState,PageHeader,Amt} from '../../components/common/ui.jsx';import AccountCard from '../../components/banking/AccountCard.jsx';import {TxItem} from '../../components/transactions/TxItem.jsx';
-import {IncomeExpenseChart,SpendingChart,MonthlySummary,FinancialHealth} from '../../components/dashboard/Widgets.jsx';
-export const QUICK=[['Transfer Money',Send,'/transfer'],['Deposit',ArrowDownToLine,'/deposit'],['Withdraw',ArrowUpFromLine,'/withdraw'],['Add Beneficiary',UserPlus,'/beneficiaries?add=1'],['View Statement',FileText,'/statements'],['Pay Bills',Zap,null]];
-export default function Dashboard(){const{user,toast}=useApp();const nav=useNavigate();const a=useAsync(accountService.list),t=useAsync(()=>transactionService.list({pageSize:5})),i=useAsync(aiService.insights),ln=useAsync(loanApi.list);
- if(a.error)return<ErrorState message="Unable to load your dashboard. Please try again." onRetry={a.reload}/>;
- const D=i.data,m=D?.monthly||[],L=<span className="muted">…</span>;
- return<><PageHeader title={`Hello, ${user?.name.split(' ')[0]}`} sub="Here is your financial overview."/>
- <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6"><StatCard label="Total balance" value={a.loading?L:<Amt v={a.data.reduce((s,x)=>s+x.balance,0)}/>} icon={Wallet}/><StatCard label="Available balance" value={a.loading?L:<Amt v={a.data.reduce((s,x)=>s+x.available,0)}/>} icon={Wallet}/>
-  <StatCard label="Monthly income" value={D?<Amt v={D.income}/>:L} icon={TrendingUp} tone="text-emerald-600"/><StatCard label="Monthly expenses" value={D?<Amt v={D.spend}/>:L} icon={TrendingDown} tone="text-rose-500"/><StatCard label="Savings" value={D?<Amt v={D.savings}/>:L} icon={PiggyBank} tone="text-emerald-600"/><StatCard label="Active loans" value={ln.data?<Link to="/loans">{ln.data.totals.active}</Link>:L} icon={Landmark}/></div>
- <div className="mt-4 grid gap-4 lg:grid-cols-3"><div className="space-y-4 lg:col-span-2">
-  <div className="grid gap-3 sm:grid-cols-2">{a.loading?<><Skeleton className="h-36"/><Skeleton className="h-36"/></>:a.data.map(x=><AccountCard key={x.id} a={x} onSelect={()=>nav(`/accounts/${x.id}`)}/>)}</div>
-  <Card className="hover:shadow-lg transition-all duration-300"><h3 className="mb-3 font-semibold">Quick actions</h3><div className="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6">{QUICK.map(([l,I,to])=>{const c="group flex flex-col items-center gap-2 rounded-xl border border-slate-200 p-3 text-center text-xs font-medium transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-indigo-500 hover:bg-indigo-50/70 hover:shadow-md dark:border-slate-800 dark:hover:bg-indigo-500/10";return to?<Link key={l} to={to} className={c}><I className="h-5 w-5 text-indigo-600 transition-transform duration-300 group-hover:scale-120 group-hover:rotate-6"/>{l}</Link>:<button key={l} className={c} onClick={()=>toast('Bill payments are coming soon.')}><I className="h-5 w-5 text-indigo-600 transition-transform duration-300 group-hover:scale-120 group-hover:rotate-6"/>{l}</button>})}</div></Card>
-  <Card><div className="mb-2 flex items-center justify-between"><h3 className="font-semibold">Recent transactions</h3><Link className="text-sm text-indigo-600" to="/transactions">View all</Link></div>
-   {t.loading?<Skeleton className="h-48"/>:t.error?<ErrorState message="Unable to load your transactions. Please try again." onRetry={t.reload}/>:!t.data.items.length?<EmptyState title="No transactions available yet." hint="New activity will appear here."/>:t.data.items.map(x=><TxItem key={x.id} t={x}/>)}</Card>
-  {i.loading?<Skeleton className="h-72"/>:<IncomeExpenseChart data={m}/>}</div>
- <div className="space-y-4">{i.loading?<><Skeleton className="h-72"/><Skeleton className="h-48"/></>:i.error?<Card><ErrorState message="Unable to load your insights. Please try again." onRetry={i.reload}/></Card>:<><SpendingChart data={D.categories}/><MonthlySummary cur={D.spend} prev={m[m.length-2]?.spend||0} income={D.income}/><FinancialHealth income={D.income} spend={D.spend} goal={D.goal} alerts={D.alerts}/></>}</div></div></>}
+import {useNavigate} from 'react-router-dom';
+import {Landmark} from 'lucide-react';
+import {Link} from 'react-router-dom';
+import {useAsync} from '../../hooks/useAsync.js';
+import {accountService,transactionService,aiService} from '../../services/index.js';
+import {loanApi} from '../../services/phase3.js';
+import {useApp} from '../../context/AppContext.jsx';
+import {Card,Skeleton,ErrorState} from '../../components/common/ui.jsx';
+import {Stagger,Rise} from '../../components/common/motion.jsx';
+import AccountCard from '../../components/banking/AccountCard.jsx';
+import {BalanceHero,QuickActions,TrendCard,SpendingBreakdown,SavingsHealth,AIInsights,RecentActivity} from '../../components/dashboard/Premium.jsx';
+
+// Kept for any consumer that imports the old constant.
+export {QUICK} from '../../components/dashboard/quick.js';
+
+export default function Dashboard(){
+  const{user}=useApp();const nav=useNavigate();
+  const a=useAsync(accountService.list),t=useAsync(()=>transactionService.list({pageSize:30})),i=useAsync(aiService.insights),ln=useAsync(loanApi.list);
+  if(a.error)return<ErrorState message="Unable to load your dashboard. Please try again." onRetry={a.reload}/>;
+  const D=i.data,m=D?.monthly||[],prev=m[m.length-2]||{};
+  const total=a.data?a.data.reduce((s,x)=>s+x.balance,0):0,avail=a.data?a.data.reduce((s,x)=>s+x.available,0):0;
+  return<Stagger className="space-y-5 sm:space-y-6" gap={.07}>
+    <Rise><BalanceHero name={user?.name?.split(' ')[0]} total={total} available={avail} income={D?.income||0} spend={D?.spend||0} prevIncome={prev.income} prevSpend={prev.spend} loading={a.loading} insightsLoading={i.loading}/></Rise>
+    <Rise><QuickActions/></Rise>
+
+    <Rise><section aria-label="Accounts"><div className="mb-3 flex items-end justify-between"><h2 className="font-display text-base font-semibold">Your accounts</h2><Link to="/accounts" className="text-sm font-semibold text-primary hover:underline dark:text-secondary">Manage</Link></div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {a.loading?<><Skeleton className="h-44 !rounded-3xl"/><Skeleton className="h-44 !rounded-3xl"/></>:a.data.map(x=><AccountCard key={x.id} a={x} onSelect={()=>nav(`/accounts/${x.id}`)}/>)}
+        {!a.loading&&ln.data&&<Link to="/loans" className="card hov group flex min-h-[11rem] flex-col justify-between !p-5"><span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-slate-300"><Landmark className="h-5 w-5" aria-hidden="true"/></span><div><p className="eyebrow">Active loans</p><p className="num mt-1 text-3xl font-bold">{ln.data.totals.active}</p><p className="muted mt-1 text-xs">View repayment schedule →</p></div></Link>}
+      </div></section></Rise>
+
+    <Rise><div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
+      <div className="min-w-0 space-y-5 sm:space-y-6 lg:col-span-2">
+        <TrendCard/>
+        <RecentActivity loading={t.loading} error={t.error} reload={t.reload} items={t.data?.items||[]}/>
+      </div>
+      <div className="min-w-0 space-y-5 sm:space-y-6">
+        {i.loading?<><Skeleton className="h-72 !rounded-2xl"/><Skeleton className="h-60 !rounded-2xl"/></>:i.error?<Card><ErrorState message="Unable to load your insights. Please try again." onRetry={i.reload}/></Card>:<>
+          <SpendingBreakdown data={D.categories}/>
+          <SavingsHealth income={D.income} spend={D.spend} goal={D.goal}/>
+          {!!D.alerts?.length&&<Card className="!p-5"><h2 className="font-display text-base font-semibold">Alerts</h2>{D.alerts.map(x=><p key={x} className="mt-2 text-sm text-amber-600">{x}</p>)}</Card>}
+        </>}
+      </div></div></Rise>
+
+    {!i.loading&&!i.error&&D&&<Rise><AIInsights items={D.insights}/></Rise>}
+  </Stagger>}
